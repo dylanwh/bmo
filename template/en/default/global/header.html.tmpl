@@ -256,7 +256,6 @@
                 [% IF user.showmybugslink %]
                   [% filtered_username = user.login FILTER uri %]
                   <li><a href="[% Param('mybugstemplate').replace('%userid%', filtered_username) %]">My [% terms.Bugs %]</a></li>
-                [% END %]
                 <li><a href="page.cgi?id=mydashboard.html">My Dashboard</a></li>
                 <li><a href="user_profile">My Profile</a></li>
                 <li><a href="page.cgi?id=user_activity.html&amp;action=run&amp;who=[% user.login FILTER uri %]">My Activity</a></li>
