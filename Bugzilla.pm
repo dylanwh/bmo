@@ -531,6 +531,16 @@ sub dbh {
     return $_[0]->request_cache->{dbh} ||= $_[0]->dbh_main;
 }
 
+sub model {
+    require Bugzilla::Model;
+    state $model = Bugzilla::Model->connect(
+        Bugzilla->dbh->{private_bz_dsn},
+        Bugzilla->localconfig->{db_user},
+        Bugzilla->localconfig->{db_pass}
+    );
+    return $model;
+}
+
 sub dbh_main {
     return $_[0]->request_cache->{dbh_main} ||= Bugzilla::DB::connect_main();
 }
