@@ -26,6 +26,7 @@ __PACKAGE__->set_primary_key(Bugzilla::Flag->ID_FIELD);
 
 __PACKAGE__->belongs_to(requestee => 'Bugzilla::Model::Result::User', 'requestee_id');
 __PACKAGE__->belongs_to(requester => 'Bugzilla::Model::Result::User', 'setter_id');
+__PACKAGE__->has_one(type => 'Bugzilla::Model::Result::FlagType', 'id');
 
 
 1;
