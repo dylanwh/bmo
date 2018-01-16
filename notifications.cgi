@@ -29,23 +29,36 @@ my $cgi = Bugzilla->cgi;
 Bugzilla->switch_to_shadow_db;
 
 my $dbh = Bugzilla->dbh;
-$user =Bugzilla::User->new(1);
+Bugzilla->set_user(Bugzilla::User->new(1));
 my $userid = $user->id;
 
 
 # This results in just one sql SELECT
+my $groups = $user->groups_as_string;
 my $rs = Bugzilla->model->resultset('Flag')->search_rs(
     {
         status             => '?',
-        'requestee.userid' => $userid,
+        # 'requestee.userid' => $userid,
+        -or => [
+            'bug_security.group_id' => undef,
+            -and => [
+                'cc_security.who' => {'!=' => undef},
+                'bug.cclist_accessible' => 1
+            ],
+            -and => [
+                {'bug.reporter' => $userid},
+                {'bug.reporter_accessible' => 1},
+            ],
+            {'bug.assigned_to' => $userid},
+            {'bug.qa_contact' => $userid},
+        ],
     },
     {
         rows     => 20,
-        prefetch => [ 'requestee', 'type', 'requester', 'bug', 'attachment' ],
+        prefetch => [ 'requestee', 'requester', 'type', { 'bug' => ['bug_security', 'cc_security'] } ],
         order_by => 'me.modification_date',
     }
 );
-
 
 print $cgi->header('application/json');
 print json_response(
