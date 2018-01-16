@@ -53,7 +53,7 @@ my $rs = Bugzilla->model->resultset('Flag')->search_rs(
     },
     {
         rows     => 20,
-        prefetch => [
+        join => [
             'requestee',
             'requester',
             'type',
@@ -62,29 +62,25 @@ my $rs = Bugzilla->model->resultset('Flag')->search_rs(
         ],
         order_by => 'me.modification_date',
         group_by => 'me.id',
-        '+select' => [ { count => 'bug_group_map.group_id', -as => 'restricted' }, ]
+        columns => {
+            requester      => 'requester.login_name',
+            requestee      => 'requestee.login_name',
+            type           => 'type.name',
+            status         => 'me.status',
+            bug_id         => 'me.bug_id',
+            bug_summary    => 'bug.short_desc',
+            created        => 'me.modification_date',
+            attach_id      => 'me.attach_id',
+            ispatch        => 'attachment.ispatch'
+            attach_summary => 'attachment.description'
+            restricted     => { count => 'bug_group_map.group_id' },
+        },
+        result_class => 'DBIx::Class::ResultClass::HashRefInflator',
     }
 );
 
 print $cgi->header('application/json');
-print json_response(
-    [   map {
-            {
-                requester      => $_->requester->login_name,
-                requestee      => $_->requestee->login_name,
-                type           => $_->type->name,
-                status         => $_->status,
-                bug_id         => $_->bug_id,
-                bug_summary    => $_->bug->short_desc,
-                created        => $_->modification_date,
-                attach_id      => $_->attach_id,
-                ispatch        => $_->attach_id ? $_->attachment->ispatch : undef,
-                attach_summary => $_->attach_id ? $_->attachment->description : undef,
-                restricted     => $_->get_column('restricted'),
-            }
-        } $rs->all
-    ]
-);
+print json_response([ $rs->all ]);
 
 sub json_response {
     my ($requests) = @_;
