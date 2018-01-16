@@ -38,12 +38,15 @@ my $rs = Bugzilla->model->resultset('Flag')->search_rs(
         status             => '?',
         'requestee.userid' => $userid,
         -or                => [
-            'bug_security.group_id' => undef,
-            -and                    => [
+            { 'bug_security.group_id' => undef },
+            {
                 'cc_security.who'       => { '!=' => undef },
-                'bug.cclist_accessible' => 1
-            ],
-            -and => [ { 'bug.reporter' => $userid }, { 'bug.reporter_accessible' => 1 }, ],
+                'bug.cclist_accessible' => 1,
+            },
+            {
+                'bug.reporter' => $userid,
+                'bug.reporter_accessible' => 1,
+            },
             { 'bug.assigned_to' => $userid },
             { 'bug.qa_contact'  => $userid },
         ],
