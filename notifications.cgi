@@ -29,33 +29,43 @@ my $cgi = Bugzilla->cgi;
 Bugzilla->switch_to_shadow_db;
 
 my $dbh = Bugzilla->dbh;
+$user =Bugzilla::User->new(1);
 my $userid = $user->id;
 
 
 # This results in just one sql SELECT
 my $rs = Bugzilla->model->resultset('Flag')->search_rs(
     {
-        status => '?',
+        status             => '?',
         'requestee.userid' => $userid,
     },
     {
-        rows => 20,
-        prefetch => ['requestee', 'type', 'requester'],
+        rows     => 20,
+        prefetch => [ 'requestee', 'type', 'requester', 'bug', 'attachment' ],
+        order_by => 'me.modification_date',
     }
 );
 
+
 print $cgi->header('application/json');
 print json_response(
-    [
-        map {
+    [   map {
             {
-                requester => $_->requester->login_name,
-                requestee => $_->requestee->login_name,
-                type      => $_->type->name,
+                requester      => $_->requester->login_name,
+                requestee      => $_->requestee->login_name,
+                type           => $_->type->name,
+                status         => $_->status,
+                bug_id         => $_->bug_id,
+                bug_summary    => $_->bug->short_desc,
+                created        => $_->modification_date,
+                attach_id      => $_->attach_id,
+                ispatch        => $_->attach_id ? $_->attachment->ispatch : undef,
+                attach_summary => $_->attach_id ? $_->attachment->description : undef,
             }
         } $rs->all
     ]
 );
+
 
 
 sub json_response {
