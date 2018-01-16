@@ -20,10 +20,14 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->set_primary_key(Bugzilla::Bug->ID_FIELD);
 
-__PACKAGE__->has_many('flags', 'Bugzilla::Model::Result::Flag', 'bug_id');
+__PACKAGE__->has_many(flags => 'Bugzilla::Model::Result::Flag', 'bug_id');
 
 __PACKAGE__->has_many(
-    'cc_security' => 'Bugzilla::Model::Result::CCList',
+    bug_group_map => 'Bugzilla::Model::Result::BugGroupMap', 'bug_id'
+);
+
+__PACKAGE__->has_many(
+    cc_security => 'Bugzilla::Model::Result::CCList',
     sub {
         my ($args) = @_;
         my $userid = Bugzilla->user->id;
@@ -33,7 +37,6 @@ __PACKAGE__->has_many(
         },
     },
 );
-
 
 __PACKAGE__->has_many(
     bug_security => 'Bugzilla::Model::Result::BugGroupMap',
