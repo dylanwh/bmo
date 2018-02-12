@@ -102,7 +102,7 @@ sub cmd_dev_httpd {
     }
     else {
         run( 'perl', 'checksetup.pl', '--no-template', $ENV{BZ_ANSWERS_FILE} );
-        run( 'perl', 'scripts/generate_bmo_data.pl', '--param' => 'use_mailer_queue=0' );
+        run( 'perl', 'scripts/generate_bmo_data.pl', '--param' => 'use_mailer_queue=0', 'vagrant@bmo-web.vm' );
     }
     httpd();
 }
