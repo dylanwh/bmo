@@ -28,6 +28,7 @@ services:
       - BMO_memcached_servers=memcached:11211
       - 'BMO_inbound_proxies=*'
       - BZ_ANSWERS_FILE=/app/docker_support/checksetup_answers.txt
+      - PERL_RELOAD=1
     depends_on:
       - bmo-db.vm
       - memcached

@@ -92,6 +92,9 @@ sub httpd {
     if ($ENV{BMO_inbound_proxies} eq '*' && $ENV{BMO_urlbase} =~ /^https/) {
         unshift @httpd_args, '-DHTTPS';
     }
+    if ($ENV{PERL_RELOAD}) {
+        unshift @httpd_args, '-DPERL_RELOAD';
+    }
     run( '/usr/sbin/httpd', @httpd_args );
 }
 
