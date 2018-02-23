@@ -71,6 +71,9 @@ my %requires = (
     'HTML::Escape'             => '1.10',
     'URI::Escape::XS'          => '0.14',
     'Sereal'                   => '4.004',
+    'GnuPG::Interface'         => '0',
+    'Log::Dispatch'            => '2.67',
+    'Log::Log4perl'            => '1.49',
 );
 my %build_requires = (
     'ExtUtils::MakeMaker' => '7.22',
