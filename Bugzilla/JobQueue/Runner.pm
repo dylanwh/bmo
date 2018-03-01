@@ -20,9 +20,15 @@ use File::Basename;
 use File::Copy;
 use Pod::Usage;
 
+use Bugzilla::Logging;
 use Bugzilla::Constants;
+use Bugzilla::DaemonControl qw(:utils);
 use Bugzilla::JobQueue;
 use Bugzilla::Util qw(get_text);
+use Module::Runtime qw(require_module);
+use IO::Async::Loop;
+use IO::Async::Signal;
+use IO::Async::Process;
 BEGIN { eval "use base qw(Daemon::Generic)"; }
 
 our $VERSION = BUGZILLA_VERSION;
@@ -173,10 +179,24 @@ sub gd_check {
     print get_text('job_queue_depth', { count => $count }) . "\n";
 }
 
+# override this to use IO::Async.
 sub gd_setup_signals {
-    my $self = shift;
-    $self->SUPER::gd_setup_signals();
-    $SIG{TERM} = sub { $self->gd_quit_event(); }
+    my $self    = shift;
+    my %signals = (
+        # Daemon::Generic by default handles these,
+        INT  => sub { $self->gd_quit_event() },
+        HUP  => sub { $self->gd_reconfig_event() },
+        # Bugzilla adds this
+        TERM => sub { $self->gd_quit_event() },
+    );
+    my $loop = IO::Async::Loop->new;
+    foreach my $name (keys %signals) {
+        my $signal = IO::Async::Signal->new(
+            name       => $name,
+            on_receipt => $signals{$name},
+        );
+        $loop->add($signal);
+    }
 }
 
 sub gd_other_cmd {
@@ -186,7 +206,7 @@ sub gd_other_cmd {
 
         exit(0);
     }
-    
+
     $self->SUPER::gd_other_cmd();
 }
 
@@ -199,14 +219,27 @@ sub gd_run {
 sub _do_work {
     my ($self, $fn) = @_;
 
-    my $jq = Bugzilla->job_queue();
-    $jq->set_verbose($self->{debug});
-    foreach my $module (values %{ Bugzilla::JobQueue->job_map() }) {
-        eval "use $module";
-        $jq->can_do($module);
-    }
+    my $loop = IO::Async::Loop->new;
+    my $worker_exit_f = $loop->new_future;
+    my $worker = IO::Async::Process->new(
+        code => sub {
+            DEBUG("starting worker");
+            my $jq = Bugzilla->job_queue();
+            $jq->set_verbose($self->{debug});
+            foreach my $module (values %{ Bugzilla::JobQueue->job_map() }) {
+                require_module($module);
+                $jq->can_do($module);
+            }
 
-    $jq->$fn;
+            $jq->$fn;
+        },
+        on_finish    => on_finish($worker_exit_f),
+        on_exception => on_exception( "jobqueue worker", $worker_exit_f )
+    );
+    $worker_exit_f->on_cancel(sub { $worker->kill('TERM') });
+    $loop->add($worker);
+    DEBUG("here we go");
+    exit $worker_exit_f->get;
 }
 
 1;
