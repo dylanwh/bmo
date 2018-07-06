@@ -142,7 +142,7 @@ sub suggest {
 
     Bugzilla->switch_to_shadow_db();
 
-    ThrowCodeError('params_required', { function => 'User.suggest_users', params => ['match'] })
+    ThrowCodeError('params_required', { function => 'User.suggest', params => ['match'] })
       unless defined $params->{match};
 
     ThrowUserError('user_access_by_match_denied')
@@ -151,6 +151,7 @@ sub suggest {
     untaint($params->{match});
     my $s = $params->{match};
     trim($s);
+    return { users => [] } if length($s) < 3;
 
     my $dbh = Bugzilla->dbh;
     my @select = ('realname AS real_name', 'login_name AS name');
@@ -169,18 +170,15 @@ sub suggest {
             my $match = sprintf 'MATCH(realname) AGAINST (%s) ', $dbh->quote($s);
             push @select, "$match AS relevance";
             $order = 'relevance DESC';
-            $where = "$match";
+            $where = $match;
         }
         else {
-            $where = join(' OR ',
-                $dbh->sql_prefix_match(nickname => $s),
-                $dbh->sql_prefix_match(login_name => $s),
-            );
+            $where = join ' OR ', $dbh->sql_prefix_match( nickname => $s ), $dbh->sql_prefix_match( login_name => $s );
         }
     }
     $where = "($where) AND is_enabled = 1";
 
-    my $sql = "SELECT " . join(", ", @select) . " FROM profiles WHERE $where ORDER BY $order";
+    my $sql = 'SELECT ' . join(', ', @select) . " FROM profiles WHERE $where ORDER BY $order LIMIT 25";
     my $results = $dbh->selectall_arrayref($sql, { Slice => {} });
 
     my @users = map {
