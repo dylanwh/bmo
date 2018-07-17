@@ -268,10 +268,11 @@ $sel->check_ok("emailqa_contact2");
 $sel->check_ok("emailcc2");
 $sel->select_ok("emailtype2", "label=is");
 $sel->type_ok("email2", $config->{QA_Selenium_TEST_user_login});
+screenshot_page($sel, '/app/artifacts/line271.png');
 $sel->click_ok("Search");
 $sel->wait_for_page_to_load_ok(WAIT_TIME);
 $sel->title_is("Bug List");
-
+screenshot_page($sel, '/app/artifacts/line275.png');
 $sel->is_text_present_ok("One bug found.");
 $sel->type_ok("save_newqueryname", "My bugs from QA_Selenium");
 $sel->click_ok("remember");
@@ -340,9 +341,13 @@ $sel->is_text_present_ok("Changes submitted for bug $bug2_id");
 # Test mass-change.
 
 $sel->click_ok("link=My bugs from QA_Selenium");
+screenshot_page($sel, '/app/artifacts/line344.png');
 $sel->wait_for_page_to_load_ok(WAIT_TIME);
+screenshot_page($sel, '/app/artifacts/line346.png');
 $sel->title_is("Bug List: My bugs from QA_Selenium");
+screenshot_page($sel, '/app/artifacts/line348.png');
 $sel->is_text_present_ok("2 bugs found");
+screenshot_page($sel, '/app/artifacts/line350.png');
 $sel->click_ok("link=Change Several Bugs at Once");
 $sel->wait_for_page_to_load_ok(WAIT_TIME);
 $sel->title_is("Bug List");
