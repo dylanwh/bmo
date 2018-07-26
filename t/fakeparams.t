@@ -17,4 +17,9 @@ use Bugzilla::Test::FakeParams (
 
 is(Bugzilla->params->{phabricator_auth_callback_url}, 'http://pants.gov/', 'import default params');
 
+Bugzilla::Test::FakeParams->import(phabricator_api_key => 'FAKE-KEY');
+
+is(Bugzilla->params->{phabricator_api_key}, 'FAKE-KEY', 'set key');
+
+
 done_testing;

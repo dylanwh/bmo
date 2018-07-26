@@ -37,9 +37,7 @@ BEGIN {
 
 sub import {
     my ($self, %answers) = @_;
-    state $called = 0;
-
-    return if @_ == 1 && $called++;
+    state $first_time = 0;
 
     require Bugzilla::Field;
     require Bugzilla::Status;
@@ -60,11 +58,14 @@ sub import {
         ],
     );
 
-    capture_merged {
-        Bugzilla::Config::update_params();
-    };
-    return;
+    if ($first_time++) {
+        capture_merged {
+            Bugzilla::Config::update_params();
+        };
+    }
+    else {
+        Bugzilla::Config::SetParam($_, $answers{$_}) for keys %answers;
+    }
 }
-
 
 1;
