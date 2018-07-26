@@ -11,11 +11,10 @@ use warnings;
 use Try::Tiny;
 use Capture::Tiny qw(capture_merged);
 
-BEGIN {
-    $ENV{LOCALCONFIG_ENV} = 'BMO';
-    $ENV{BMO_db_driver} = 'sqlite';
-    $ENV{BMO_db_name} = ':memory:';
-};
+use Bugzilla::Test::FakeLocalconfig (
+    db_driver => 'sqlite',
+    db_name => ':memory:',
+);
 use Bugzilla;
 BEGIN { Bugzilla->extensions };
 use Bugzilla::Test::FakeParams;
