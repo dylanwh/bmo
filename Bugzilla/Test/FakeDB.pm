@@ -5,6 +5,9 @@
 # This Source Code Form is "Incompatible With Secondary Licenses", as
 # defined by the Mozilla Public License, v. 2.0.
 package Bugzilla::Test::FakeDB;
+use 5.10.1;
+use strict;
+use warnings;
 use Try::Tiny;
 use Capture::Tiny qw(capture_merged);
 
@@ -17,9 +20,12 @@ use Bugzilla;
 BEGIN { Bugzilla->extensions };
 
 sub initialize_database {
+    require Bugzilla::Install;
+    require Bugzilla::Install::DB;
+    require Bugzilla::Field;;
 
     return capture_merged {
-        Bugzilla->dbh->bz_setup_database
+        Bugzilla->dbh->bz_setup_database();
 
         # Populate the tables that hold the values for the <select> fields.
         Bugzilla->dbh->bz_populate_enum_tables();
