@@ -12,35 +12,54 @@ use Try::Tiny;
 use Capture::Tiny qw(capture_merged);
 use Test2::Tools::Mock qw(mock);
 
-use Bugzilla::Test::FakeDB;
 use Bugzilla::Config;
+use Safe;
 
 our $Params;
-our $Mock = mock 'Bugzilla::Config' => (
-    override => [
-        '_read_file' => sub {
-            my ($class) = @_;
-            return {} unless $Params;
-            my $s = Safe->new;
-            $s->reval($Params);
-            die "Error evaluating params: $@" if $@;
-            return { %{ $s->varglob('param') } };
-        },
-        '_write_file' => sub {
-            my ($class, $str) = @_;
-            $Params = $str;
-        },
-    ],
-);
+BEGIN {
+    our $Mock = mock 'Bugzilla::Config' => (
+        override => [
+            '_read_file' => sub {
+                my ($class) = @_;
+                return {} unless $Params;
+                my $s = Safe->new;
+                $s->reval($Params);
+                die "Error evaluating params: $@" if $@;
+                return { %{ $s->varglob('param') } };
+            },
+            '_write_file' => sub {
+                my ($class, $str) = @_;
+                $Params = $str;
+            },
+        ],
+    );
+}
 
 sub import {
     my ($self, %answers) = @_;
-    Bugzilla::Test::FakeDB->initialize_database;
+    state $called = 0;
+
+    return if @_ == 1 && $called++;
+
+    require Bugzilla::Field;
+    require Bugzilla::Status;
+    require Bugzilla;
     my $Bugzilla = mock 'Bugzilla' => (
         override => [
             installation_answers => sub { \%answers },
         ],
     );
+    my $BugzillaField = mock 'Bugzilla::Field' => (
+        override => [
+            get_legal_field_values => sub { [] },
+        ],
+    );
+    my $BugzillaStatus = mock 'Bugzilla::Status' => (
+        override => [
+            closed_bug_statuses => sub { die "no database" },
+        ],
+    );
+
     capture_merged {
         Bugzilla::Config::update_params();
     };

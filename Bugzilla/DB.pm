@@ -142,7 +142,7 @@ sub connect_main {
 sub _connect {
     my ($params) = @_;
 
-    my $driver = $params->{db_driver};
+t     my $driver = $params->{db_driver};
     my $pkg_module = DB_MODULE->{lc($driver)}->{db};
 
     # do the actual import

@@ -18,11 +18,16 @@ BEGIN {
 };
 use Bugzilla;
 BEGIN { Bugzilla->extensions };
+use Bugzilla::Test::FakeParams;
 
-sub initialize_database {
+sub import {
     require Bugzilla::Install;
     require Bugzilla::Install::DB;
     require Bugzilla::Field;;
+
+    state $first_time = 0;
+
+    return undef if $first_time++;
 
     return capture_merged {
         Bugzilla->dbh->bz_setup_database();

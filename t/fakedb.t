@@ -16,7 +16,7 @@ use ok 'Bugzilla::Test::FakeDB';
 use ok 'Bugzilla::Test::Util', qw(create_user);
 
 try {
-    Bugzilla::Test::FakeDB->initialize_database();
+    Bugzilla::Test::FakeDB->import();
     pass('made fake in-memory db');
 }
 catch {

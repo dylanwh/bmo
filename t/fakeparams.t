@@ -14,7 +14,6 @@ use Test2::Tools::Mock qw(mock);
 use Bugzilla::Test::FakeParams (
     phabricator_auth_callback_url => 'http://pants.gov/',
 );
-use Data::Dumper;
 
 is(Bugzilla->params->{phabricator_auth_callback_url}, 'http://pants.gov/', 'import default params');
 
