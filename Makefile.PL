@@ -419,6 +419,9 @@ META.json: Makefile.PL
 
 META.yml: Makefile.PL
 \tmake distmeta 2>&1 /dev/null; mv */META.yml .
+
+extension-config.tar.gz: extensions/*/Config.pm
+\ttar -zcf \$@ extensions/*/Config.pm
 MAKE
 }
 

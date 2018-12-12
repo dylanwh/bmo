@@ -1,0 +1,24 @@
+ARG PERL_VERSION=5.28.0
+
+FROM perl:$PERL_VERSION-slim AS builder
+
+COPY docker_support/install-debian.sh /usr/local/bin
+RUN install-debian.sh
+
+COPY docker_support/install-cpan.sh /usr/local/bin
+
+# Run perl Makefile.PL; make extension-config.tar.gz to generate extension-config.tar.gz
+COPY Bugzilla.pm \
+     Makefile.PL \
+     gen-cpanfile.pl \
+     extension-config.tar.gz \
+     docker_support/cpanfile \
+     docker_support/cpanfile.snapshot \
+     /build/
+
+WORKDIR /build
+RUN install-cpan.sh
+
+
+
+
