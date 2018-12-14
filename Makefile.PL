@@ -74,6 +74,7 @@ my %requires = (
   'Module::Metadata'                    => '1.000033',
   'Module::Runtime'                     => '0.014',
   'Mojo::JWT'                           => '0.07',
+  'HTTP::BrowserDetect'                 => 0,
   'MojoX::Log::Log4perl::Tiny'          => '0.01',
   'Mojolicious'                         => '8.02',
   'Mojolicious::Plugin::OAuth2::Server' => '0.42',
