@@ -136,7 +136,7 @@ sub Send {
   # Add dependencies and regressions to referenced bug list on new bugs
   if (!$start) {
     push(@referenced_bugs,
-      map { @{$bug->{$_}} } qw(dependson blocked regressed_by regresses));
+      map { @{$bug->$_} } qw(dependson blocked regressed_by regresses));
   }
 
   # If no changes have been made, there is no need to process further.
@@ -595,7 +595,7 @@ sub _get_diffs {
       $diff->{num}       = $comment->count;
       $diff->{isprivate} = $diff->{new};
     }
-    elsif ($diff->{field_name} =~ /^(dependson|blocked|regress(ed_by|es))$/) {
+    elsif ($diff->{field_name} =~ /^(?:dependson|blocked|regress(ed_by|es))$/) {
       push @$referenced_bugs, grep {/^\d+$/} split(/[\s,]+/, $diff->{old});
       push @$referenced_bugs, grep {/^\d+$/} split(/[\s,]+/, $diff->{new});
     }
