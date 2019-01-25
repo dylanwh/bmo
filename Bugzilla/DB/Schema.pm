@@ -484,6 +484,26 @@ use constant ABSTRACT_SCHEMA => {
     ],
   },
 
+  regressions => {
+    FIELDS => [
+      regressed_by => {
+        TYPE       => 'INT3',
+        NOTNULL    => 1,
+        REFERENCES => {TABLE => 'bugs', COLUMN => 'bug_id', DELETE => 'CASCADE'}
+      },
+      regresses => {
+        TYPE       => 'INT3',
+        NOTNULL    => 1,
+        REFERENCES => {TABLE => 'bugs', COLUMN => 'bug_id', DELETE => 'CASCADE'}
+      },
+    ],
+    INDEXES => [
+      regressions_regresses_idx =>
+        {FIELDS => [qw(regresses regressed_by)], TYPE => 'UNIQUE'},
+      regressions_regressed_by_idx => ['regressed_by'],
+    ],
+  },
+
   attachments => {
     FIELDS => [
       attach_id => {TYPE => 'MEDIUMSERIAL', NOTNULL => 1, PRIMARYKEY => 1},
