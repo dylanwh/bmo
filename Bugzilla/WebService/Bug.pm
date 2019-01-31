@@ -1528,9 +1528,9 @@ sub _bug_to_hash {
       my @regressed_by = map { $self->type('int', $_) } @{$bug->regressed_by};
       $item{'regressed_by'} = \@regressed_by;
     }
-    if (filter_wants $params, 'regresses') {
-      my @regresses = map { $self->type('int', $_) } @{$bug->regresses};
-      $item{'regresses'} = \@regresses;
+    if (filter_wants $params, 'regressions') {
+      my @regressions = map { $self->type('int', $_) } @{$bug->regresses};
+      $item{'regressions'} = \@regressions;
     }
   }
 
@@ -2816,7 +2816,7 @@ keys included in the user detail hash, see below.
 
 C<array> of C<int>s. The ids of bugs that introduced this bug.
 
-=item C<regresses>
+=item C<regressions>
 
 C<array> of C<int>s. The ids of bugs bugs that are introduced by this bug.
 
@@ -3045,7 +3045,7 @@ and all custom fields.
 =item The C<actual_time> item was added to the C<bugs> return value
 in Bugzilla B<4.4>.
 
-=item The C<duplicates>, C<regressed_by>, C<regresses> and C<triage_owner>
+=item The C<duplicates>, C<regressed_by>, C<regressions> and C<triage_owner>
 items were added in Bugzilla B<6.0>.
 
 =back
@@ -3651,7 +3651,7 @@ You didn't specify a summary for the bug.
 =item 116 (Dependency Loop)
 
 You specified values in the C<blocks> and C<depends_on> fields,
-or the C<regresses> and C<regressed_by> fields, that would cause a
+or the C<regressions> and C<regressed_by> fields, that would cause a
 circular dependency between bugs.
 
 =item 120 (Group Restriction Denied)
@@ -4484,7 +4484,7 @@ the bug.
 
 C<array> of C<int>s. The ids of bugs that introduced this bug.
 
-=item C<regresses>
+=item C<regressions>
 
 C<array> of C<int>s. The ids of bugs bugs that are introduced by this bug.
 
@@ -4690,7 +4690,7 @@ The error message will have more detail.
 =item 116 (Dependency Loop)
 
 You specified values in the C<blocks> and C<depends_on> fields,
-or the C<regresses> and C<regressed_by> fields, that would cause a
+or the C<regressions> and C<regressed_by> fields, that would cause a
 circular dependency between bugs.
 
 =item 117 (Invalid Comment ID)
